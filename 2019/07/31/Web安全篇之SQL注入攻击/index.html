@@ -107,7 +107,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://s2.ax1x.com/2019/07/31/etfRqH.png">
 <meta property="og:image" content="https://s2.ax1x.com/2019/07/31/etR9zD.png">
-<meta property="og:updated_time" content="2019-07-31T07:33:08.824Z">
+<meta property="og:updated_time" content="2019-07-31T07:39:18.498Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Web安全篇之SQL注入攻击">
 <meta name="twitter:description" content="SQL注入篇一共分为三讲：">
@@ -406,7 +406,7 @@
                 
               
 
-              <time title="Erstellt: 2019-07-31 14:27:31 / Geändert am: 15:33:08" itemprop="dateCreated datePublished" datetime="2019-07-31T14:27:31+08:00">2019-07-31</time>
+              <time title="Erstellt: 2019-07-31 14:27:31 / Geändert am: 15:39:18" itemprop="dateCreated datePublished" datetime="2019-07-31T14:27:31+08:00">2019-07-31</time>
             
 
             
@@ -448,11 +448,9 @@
         <h1 id="SQL注入篇一共分为三讲："><a href="#SQL注入篇一共分为三讲：" class="headerlink" title="SQL注入篇一共分为三讲："></a>SQL注入篇一共分为三讲：</h1><a id="more"></a>
 <p>第一讲：“纸上谈兵：我们需要在本地架设注入环境，构造注入语句，了解注入原理。”；<br>第二讲：“实战演练：我们要在互联网上随机对网站进行友情检测，活学活用，举一反三”；<br>第三讲：“扩展内容：挂马，提权，留门。此讲内容颇具危害性，不予演示。仅作概述”。<br>这个主题涉及的东西还是比较多的，结合我们前期所学。主要是让大家切身体会一下，管中窥豹，起到知己知彼的作用。千里之堤溃于蚁穴，以后进入单位，从事相关程序开发，一定要谨小慎微。</p>
 <h2 id="大家知道骇客们攻击网站主要有哪些手法？"><a href="#大家知道骇客们攻击网站主要有哪些手法？" class="headerlink" title="大家知道骇客们攻击网站主要有哪些手法？"></a>大家知道骇客们攻击网站主要有哪些手法？</h2><p> SQL注入，旁注，XSS跨站，COOKIE欺骗，DDOS，0day 漏洞，社会工程学 等等等等，只要有数据交互，就会存在被入侵风险！哪怕你把网线拔掉，物理隔绝，我还可以利用传感器捕捉电磁辐射信号转换成模拟图像。你把门锁上，我就爬窗户；你把窗户关上，我就翻院墙；你把院墙加高，我就挖地洞。。。道高一尺魔高一丈，我始终坚信计算机不存在绝对的安全，你攻我防，此消彼长，有时候，魔与道只在一念之间。<br>    下面，就让我们一起推开计算机中那另一扇不为人知的门—</p>
-<h2 id="一、纸上谈兵"><a href="#一、纸上谈兵" class="headerlink" title="一、纸上谈兵"></a>一、纸上谈兵</h2><h3 id="（一）了解注入原理"><a href="#（一）了解注入原理" class="headerlink" title="（一）了解注入原理"></a>（一）了解注入原理</h3><pre><code>为什么会存在sql注入呢，只能说SQL出身不好。因为sql作为一种解释型语言，在运行时是由一个运行时组件解释语言代码并执行其中包含的指令的语言。基于这种执行方式，产生了一系列叫做代码注入（code injection）的漏洞 。它的数据其实是由程序员编写的代码和用户提交的数据共同组成的。程序员在web开发时，没有过滤敏感字符，绑定变量，导致攻击者可以通过sql灵活多变的语法，构造精心巧妙的语句，不择手段，达成目的，或者通过系统报错，返回对自己有用的信息。
-我们在学JDBC和SQL时，讲师跟我们说 Statement不能防止SQL注入, PreparedStatement能够防止SQL注入. 没错, 这句话是没有问题的, 但到底如何进行SQL注入?怎么直观的去了解SQL注入?这还是需要花一定的时间去实验的.预编译语句java.sql.PreparedStatement ,扩展自 Statement,不但具有 Statement 的所有能力而且具有更强大的功能。不同的是，PreparedStatement 是在创建语句对象的同时给出要执行的sql语句。这样，sql语句就会被系统进行预编译，执行的速度会有所增加，尤其是在执行大语句的时候，效果更加理想。而且PreparedStatement中绑定的sql语句是可以带参数的。
-</code></pre><h3 id="（二）架设注入环境"><a href="#（二）架设注入环境" class="headerlink" title="（二）架设注入环境"></a>（二）架设注入环境</h3><pre><code>我们知道现在php作为一门网页编程语言真是风生水起，利用lamp(linux+apache+mysql+php)或者wamp(windows+apache+mysql+php)搭建网站环境，如腾讯的discuz、阿里的 phpwind 以及织梦的dedecms 等建站程序,占据了国内网站的半壁江山。那么我们今天即以这种架构为假象敌，首先是在本地架设wamp环境。需要用到的工具有：apache,mysql,php ，这几个组件可以单独下载安装，不过安装配置过程较为繁琐，还是建议新手直接从网上下载phpnow ，一个绿色程序，包含上述三个组件，傻瓜化操作就可以了。
-然后呢，我们要建立测试用的数据表，编写html,php,文件，通过实例具体来演示通过SQL注入，登入后台管理员界面。这里，我之前已经写好了，大家看下：
-</code></pre><h4 id="1-创建一张试验用的数据表："><a href="#1-创建一张试验用的数据表：" class="headerlink" title="1.创建一张试验用的数据表："></a>1.创建一张试验用的数据表：</h4><p>　　</p>
+<h2 id="一、纸上谈兵"><a href="#一、纸上谈兵" class="headerlink" title="一、纸上谈兵"></a>一、纸上谈兵</h2><h3 id="（一）了解注入原理"><a href="#（一）了解注入原理" class="headerlink" title="（一）了解注入原理"></a>（一）了解注入原理</h3><p>为什么会存在sql注入呢，只能说SQL出身不好。因为sql作为一种解释型语言，在运行时是由一个运行时组件解释语言代码并执行其中包含的指令的语言。基于这种执行方式，产生了一系列叫做代码注入（code injection）的漏洞 。它的数据其实是由程序员编写的代码和用户提交的数据共同组成的。程序员在web开发时，没有过滤敏感字符，绑定变量，导致攻击者可以通过sql灵活多变的语法，构造精心巧妙的语句，不择手段，达成目的，或者通过系统报错，返回对自己有用的信息。<br>我们在学JDBC和SQL时，讲师跟我们说 Statement不能防止SQL注入, PreparedStatement能够防止SQL注入. 没错, 这句话是没有问题的, 但到底如何进行SQL注入?怎么直观的去了解SQL注入?这还是需要花一定的时间去实验的.预编译语句java.sql.PreparedStatement ,扩展自 Statement,不但具有 Statement 的所有能力而且具有更强大的功能。不同的是，PreparedStatement 是在创建语句对象的同时给出要执行的sql语句。这样，sql语句就会被系统进行预编译，执行的速度会有所增加，尤其是在执行大语句的时候，效果更加理想。而且PreparedStatement中绑定的sql语句是可以带参数的。</p>
+<h3 id="（二）架设注入环境"><a href="#（二）架设注入环境" class="headerlink" title="（二）架设注入环境"></a>（二）架设注入环境</h3><p>我们知道现在php作为一门网页编程语言真是风生水起，利用lamp(linux+apache+mysql+php)或者wamp(windows+apache+mysql+php)搭建网站环境，如腾讯的discuz、阿里的 phpwind 以及织梦的dedecms 等建站程序,占据了国内网站的半壁江山。那么我们今天即以这种架构为假象敌，首先是在本地架设wamp环境。需要用到的工具有：apache,mysql,php ，这几个组件可以单独下载安装，不过安装配置过程较为繁琐，还是建议新手直接从网上下载phpnow ，一个绿色程序，包含上述三个组件，傻瓜化操作就可以了。<br>然后呢，我们要建立测试用的数据表，编写html,php,文件，通过实例具体来演示通过SQL注入，登入后台管理员界面。这里，我之前已经写好了，大家看下：</p>
+<h4 id="1-创建一张试验用的数据表："><a href="#1-创建一张试验用的数据表：" class="headerlink" title="1.创建一张试验用的数据表："></a>1.创建一张试验用的数据表：</h4><p>　　</p>
 <pre><code>1CREATE TABLE users (
 2  id int(11) NOT NULL AUTO_INCREMENT,
 3　username varchar(64) NOT NULL,
